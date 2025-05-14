@@ -1,0 +1,32 @@
+Problem (37)
+nano caseconv.l
+%{
+#include "y.tab.h"
+#include <string.h>
+%}
+
+%%
+[a-zA-Z]+     { yylval.str = strdup(yytext); return WORD; }
+\n            { return 0; }
+.             { return yytext[0]; }
+%%
+
+int yywrap() {
+    return 1;
+}
+
+nano caseconv.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+int yylex(void);
+int yyerror(const char *s);
+%}
+
+%union {
+    char *str;
+}
+
