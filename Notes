@@ -1,0 +1,147 @@
+### **Concise Viva Notes for Compiler Design**
+
+---
+
+#### **1. Phases of a Compiler**
+1. **Lexical Analysis (Scanner)**  
+   - Converts source code into tokens (e.g., identifiers, keywords).  
+   - Removes whitespace, comments.  
+   - Example: `int a = b + 5;` → Tokens: `int`, `a`, `=`, `b`, `+`, `5`, `;`.
+
+2. **Syntax Analysis (Parser)**  
+   - Checks grammar using CFG (Context-Free Grammar).  
+   - Generates parse trees (e.g., for `S → id = E`).  
+   - Example: `a = b + c` → Valid syntax tree.
+
+3. **Semantic Analysis**  
+   - Ensures type compatibility, scope rules.  
+   - Example: `int a; float b; a = b;` → Error (type mismatch).
+
+4. **Intermediate Code Generation**  
+   - Produces machine-independent code (e.g., 3-address code, quadruples).  
+   - Example: `t1 = b + c; a = t1`.
+
+5. **Code Optimization**  
+   - Improves efficiency (dead code elimination, loop optimization).  
+   - Example:  
+     ```c
+     int a = 10;
+     if (a > 5) { ... } else { ... } → Eliminate else (always true).
+     ```
+
+6. **Code Generation**  
+   - Converts intermediate code to target machine code.  
+   - Example: `MOV R1, b; ADD R1, c; MOV a, R1`.
+
+---
+
+#### **2. Key Data Structures**
+- **Symbol Table**: Stores identifiers, types, scope.  
+- **Literal Table**: Holds constants (e.g., `=’5’`).  
+- **Quadruples**: `(op, arg1, arg2, result)` for 3-address code.  
+- **Triples**: Compact form of quadruples (no temporary names).  
+
+---
+
+#### **3. Macro Processors**
+- **Macro Definition**:  
+  ```assembly
+  MACRO ADD1 &X, &Y
+    MOVER AREG, &X
+    ADD AREG, &Y
+  MEND
+  ```
+- **Expansion**: Replaces macro calls with definitions.  
+- **Data Structures**:  
+  - **MNT (Macro Name Table)**: Name, parameters, start index.  
+  - **MDT (Macro Definition Table)**: Expanded instructions.  
+
+---
+
+#### **4. Assemblers**
+- **Two-Pass Assembler**:  
+  - **Pass 1**: Builds symbol table, assigns addresses.  
+  - **Pass 2**: Generates machine code using symbol table.  
+- **Directives**:  
+  - `DC` (Define Constant), `DS` (Define Storage).  
+  - `EQU` (Equate), `LTORG` (Literal pool).  
+
+---
+
+#### **5. Loaders and Linkers**
+- **Loader**: Loads executable into memory.  
+  - Types: Absolute, Relocating, Dynamic.  
+- **Linker**: Combines object files, resolves symbols.  
+  - Example: `printf()` in library linked to user code.  
+
+---
+
+#### **6. Syntax-Directed Translation (SDT)**
+- **Attributes**:  
+  - Synthesized (from children).  
+  - Inherited (from parent/siblings).  
+- **Example**:  
+  ```plaintext
+  E → E1 + T { E.val = E1.val + T.val }
+  ```
+
+---
+
+#### **7. Intermediate Code Forms**
+1. **Postfix**: `a = b + c` → `b c + a =`.  
+2. **Syntax Tree**: Hierarchical representation.  
+3. **3-Address Code**:  
+   ```plaintext
+   t1 = b + c
+   a = t1
+   ```
+4. **Quadruples**:  
+   | op  | arg1 | arg2 | result |
+   |-----|------|------|--------|
+   | +   | b    | c    | t1     |
+   | =   | t1   | -    | a      |
+
+---
+
+#### **8. Code Optimization Techniques**
+- **Local**: Peephole (redundant load elimination).  
+- **Global**: Loop invariant removal, constant folding.  
+- **Example**:  
+  ```c
+  x = 2 * 3; → x = 6;  // Constant folding.
+  ```
+
+---
+
+#### **9. Error Handling**
+- **Lexical**: Illegal characters (`@` in C).  
+- **Syntax**: Missing semicolon.  
+- **Semantic**: Type mismatch (`int + string`).  
+
+---
+
+### **Sample Viva Questions**
+1. **What is the role of the symbol table?**  
+   - Stores identifiers, types, and scope for quick lookup.  
+
+2. **How does a two-pass assembler work?**  
+   - Pass 1: Processes symbols and literals. Pass 2: Generates machine code.  
+
+3. **Differentiate between synthesized and inherited attributes.**  
+   - Synthesized: Computed from child nodes. Inherited: From parent/siblings.  
+
+4. **What is dead code elimination?**  
+   - Removing unreachable code (e.g., `if (false) { ... }`).  
+
+5. **Explain quadruples with an example.**  
+   - Example: `t1 = b + c` → `(+, b, c, t1)`.  
+
+---
+
+**Key Topics to Focus:**  
+- Lexical/Syntax/Semantic analysis phases.  
+- Macro expansion and assembler passes.  
+- SDT attributes and intermediate code forms.  
+- Optimization techniques.  
+
+**Good Luck!** 🚀
