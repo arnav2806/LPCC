@@ -1,0 +1,66 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class IntermediateCode {
+    int location;
+    String instruction;
+
+    public IntermediateCode(int location, String instruction) {
+        this.location = location;
+        this.instruction = instruction;
+    }
+
+    @Override
+    public String toString() {
+        return location + "\t" + instruction;
+    }
+}
+
+public class IntermediateCodeGeneratorA4 {
+    public static void main(String[] args) {
+        String[] assemblyCode = {
+            "START 100",
+            "READ A",
+            "READ B",
+            "MOVER AREG, A",
+            "SUB AREG, B",
+            "STOP",
+            "A DS 1",
+            "B DS 1",
+            "END"
+        };
+
+        List<IntermediateCode> intermediateCode = new ArrayList<>();
+        int locationCounter = 100;
+
+        for (String line : assemblyCode) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+            
+            if (tokens[0].equals("START")) {
+                locationCounter = Integer.parseInt(tokens[1]);
+                continue;
+            }
+            
+            if (tokens[0].equals("END")) {
+                break;
+            }
+            
+            if (tokens[0].equals("DS")) {
+                locationCounter += Integer.parseInt(tokens[1]);
+                continue;
+            }
+            
+            intermediateCode.add(new IntermediateCode(locationCounter, line));
+            locationCounter++;
+        }
+
+        System.out.println("Intermediate Code:");
+        System.out.println("Location\tInstruction");
+        for (IntermediateCode ic : intermediateCode) {
+            System.out.println(ic);
+        }
+    }
+}
