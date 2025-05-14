@@ -1,0 +1,82 @@
+Problem (41)  - (48)
+package lpcc;
+
+import java.util.*;
+
+public class TACGenerator {
+    static int tempCount = 1;
+    static List<String> tac = new ArrayList<>();
+
+    static String newTemp() {
+        return "t" + (tempCount++);
+    }
+
+    static String generate(String expr) {
+        Stack<String> operands = new Stack<>();
+        Stack<Character> operators = new Stack<>();
+
+        for (int i = 0; i < expr.length(); i++) {
+            char ch = expr.charAt(i);
+            if (ch == ' ') continue;
+
+            if (Character.isLetterOrDigit(ch)) {
+                operands.push(String.valueOf(ch));
+            } else if (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^') {
+                while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(ch)) {
+                    makeTAC(operators.pop(), operands);
+                }
+                operators.push(ch);
+            } else if (ch == '(') {
+                operators.push(ch);
+            } else if (ch == ')') {
+                while (!operators.isEmpty() && operators.peek() != '(') {
+                    makeTAC(operators.pop(), operands);
+                }
+                operators.pop(); // remove '('
+            }
+        }
+
+        while (!operators.isEmpty()) {
+            makeTAC(operators.pop(), operands);
+        }
+
+        return operands.pop();
+    }
+
+    static void makeTAC(char op, Stack<String> operands) {
+        String b = operands.pop();
+        String a = operands.pop();
+        String t = newTemp();
+        tac.add(t + " = " + a + " " + op + " " + b);
+        operands.push(t);
+    }
+
+    static int precedence(char op) {
+        switch (op) {
+            case '^': return 3;
+            case '*': case '/': return 2;
+            case '+': case '-': return 1;
+        }
+        return 0;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter LHS variable: ");
+        String lhs = sc.nextLine();
+
+        System.out.print("Enter arithmetic expression: ");
+        String expr = sc.nextLine().replace(" ", ""); // remove spaces
+
+        String resultTemp = generate(expr);
+        tac.add(lhs + " = " + resultTemp);
+
+        System.out.println("\nThree Address Code:");
+        for (String line : tac) {
+            System.out.println(line);
+        }
+
+        sc.close();
+    }
+}
