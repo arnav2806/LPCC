@@ -1,0 +1,29 @@
+Problem (24)
+nano pos.l
+%{
+#include <stdio.h>
+%}
+
+%%
+"the"|"The"                             { printf("Article: %s\n", yytext); }
+"is"|"are"|"was"|"were"|"give"|"kill"|"needs"|"can" { printf("Verb: %s\n", yytext); }
+"from"|"to"|"of"|"in"|"on"|"for"       { printf("Preposition: %s\n", yytext); }
+"it"|"he"|"she"|"they"|"we"|"I"|"you"  { printf("Pronoun: %s\n", yytext); }
+"never"|"that"|"If"                    { printf("Conjunction/Qualifier: %s\n", yytext); }
+"power"|"thing"|"cigarette"|"light"    { printf("Noun: %s\n", yytext); }
+[.!?,]                                  { /* Ignore punctuation */ }
+[a-zA-Z]+                               { printf("Unknown: %s\n", yytext); }
+[ \t\n]+                                { /* Ignore whitespace */ }
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+flex pos.l
+gcc lex.yy.c -o pos -lfl
+./pos
+If you never light the cigarette, 
+you never give the thing that can kill you the power it needs to kill you.
+
