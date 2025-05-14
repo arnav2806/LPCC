@@ -1,0 +1,94 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class MacroDefinition {
+    String name;
+    List<String> parameters;
+    List<String> body;
+
+    public MacroDefinition(String name) {
+        this.name = name;
+        this.parameters = new ArrayList<>();
+        this.body = new ArrayList<>();
+    }
+}
+
+public class MacroProcessorD5 {
+    public static void main(String[] args) {
+        String[] macroCode = {
+            "LOAD J",
+            "STORE M",
+            "MACRO EST",
+            "LOAD e",
+            "ADD d",
+            "MEND",
+            "LOAD S",
+            "MACRO SUB4 ABC",
+            "LOAD U",
+            "STORE ABC",
+            "MEND",
+            "MACRO ADD7 P4, P5, P6",
+            "LOAD P5",
+            "SUB4 XYZ",
+            "SUB 8",
+            "SUB 2",
+            "STORE P4",
+            "STORE P6",
+            "MEND",
+            "EST",
+            "ADD7 C4, C5, C6",
+            "SUB4 z",
+            "END"
+        };
+
+        List<MacroDefinition> macroDefinitions = new ArrayList<>();
+        List<String> intermediateCode = new ArrayList<>();
+        MacroDefinition currentMacro = null;
+
+        for (String line : macroCode) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+            
+            if (tokens[0].equals("MACRO")) {
+                currentMacro = new MacroDefinition(tokens[1]);
+                // Handle parameters if any
+                if (tokens.length > 2) {
+                    for (int i = 2; i < tokens.length; i++) {
+                        currentMacro.parameters.add(tokens[i].replace(",", ""));
+                    }
+                }
+                continue;
+            }
+            
+            if (tokens[0].equals("MEND")) {
+                if (currentMacro != null) {
+                    macroDefinitions.add(currentMacro);
+                    currentMacro = null;
+                }
+                continue;
+            }
+            
+            if (currentMacro != null) {
+                currentMacro.body.add(line);
+            } else {
+                intermediateCode.add(line);
+            }
+        }
+
+        System.out.println("Intermediate Code:");
+        for (String code : intermediateCode) {
+            System.out.println(code);
+        }
+
+        System.out.println("\nMacro Definitions:");
+        for (MacroDefinition macro : macroDefinitions) {
+            System.out.println("MACRO " + macro.name + " " + String.join(", ", macro.parameters));
+            for (String bodyLine : macro.body) {
+                System.out.println(bodyLine);
+            }
+            System.out.println("MEND");
+        }
+    }
+}
