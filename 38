@@ -1,0 +1,67 @@
+Problem (38)
+nano casecheck.l
+%{
+#include "y.tab.h"
+#include <string.h>
+%}
+
+%%
+[a-zA-Z]+     { yylval.str = strdup(yytext); return WORD; }
+\n            { return 0; }
+.             { return yytext[0]; }
+%%
+
+int yywrap() {
+    return 1;
+}
+
+nano casecheck.y
+%{
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+
+int yylex(void);
+int yyerror(const char *s);
+%}
+
+%union {
+    char *str;
+}
+
+%token <str> WORD
+
+%%
+input: WORD {
+    int upper = 0, lower = 0;
+    for (int i = 0; $1[i]; i++) {
+        if (isupper($1[i])) upper++;
+        else if (islower($1[i])) lower++;
+    }
+
+    if (upper > 0 && lower == 0)
+        printf("UPPERCASE\n");
+    else if (lower > 0 && upper == 0)
+        printf("lowercase\n");
+    else
+        printf("Mixed Case\n");
+}
+;
+%%
+
+int main() {
+    printf("Enter a word: ");
+    yyparse();
+    return 0;
+}
+
+int yyerror(const char *s) {
+    printf("Error: %s\n", s);
+    return 0;
+}
+
+yacc -d casecheck.y
+flex casecheck.l
+gcc y.tab.c lex.yy.c -o casecheck -lfl
+./casecheck
