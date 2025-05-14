@@ -1,0 +1,28 @@
+Problem (23)
+nano pos.l
+%{
+#include <stdio.h>
+%}
+
+%%
+"the"|"The"                         { printf("Article: %s\n", yytext); }
+"is"|"are"|"was"|"were"|"has"      { printf("Verb: %s\n", yytext); }
+"from"|"to"|"of"|"in"|"on"|"for"   { printf("Preposition: %s\n", yytext); }
+"it"|"he"|"she"|"they"|"we"|"I"|"you"|"its"  { printf("Pronoun: %s\n", yytext); }
+"important"|"own"|"not"            { printf("Adjective: %s\n", yytext); }
+"thing"|"reason"|"questioning"|"curiosity"|"existing" { printf("Noun: %s\n", yytext); }
+[.!?,]                              { /* Ignore punctuation */ }
+[a-zA-Z]+                           { printf("Unknown: %s\n", yytext); }
+[ \t\n]+                            { /* Ignore spaces */ }
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+flex pos.l
+gcc lex.yy.c -o pos -lfl
+./pos
+The important thing is to not stop questioning,
+Curiosity has its own reason for existing.
