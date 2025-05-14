@@ -1,0 +1,86 @@
+import java.util.*;
+
+class Symbol {
+    String name;
+    int address;
+
+    Symbol(String name, int address) {
+        this.name = name;
+        this.address = address;
+    }
+
+    public String toString() {
+        return name + "\t" + address;
+    }
+}
+
+public class SymbolTableGenerator {
+    public static void main(String[] args) {
+        String[] code = {
+            "START 150",
+            "READ D",
+            "READ E",
+            "LOOP MOVER AREG, D",
+            "     MOVER BREG, E",
+            "     COMP BREG, ='20'",
+            "     BC GT, LOOP",
+            "BACK SUB AREG, E",
+            "     COMP AREG, ='50'",
+            "     BC LT, BACK",
+            "     STOP",
+            "D DS 1",
+            "E DS 1",
+            "END"
+        };
+
+        Map<String, Symbol> symbolTable = new LinkedHashMap<>();
+        int locCtr = 0;
+
+        for (String line : code) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+
+            // Handle START directive
+            if (tokens[0].equals("START")) {
+                locCtr = Integer.parseInt(tokens[1]);
+                continue;
+            }
+
+            // Stop processing on END
+            if (tokens[0].equals("END")) break;
+
+            // If the line starts with a label (not an instruction or directive)
+            if (!isInstruction(tokens[0]) && !tokens[0].equals("DS")) {
+                String label = tokens[0];
+
+                // Handle cases like "D DS 1"
+                if (tokens.length >= 3 && tokens[1].equals("DS")) {
+                    symbolTable.put(label, new Symbol(label, locCtr));
+                    locCtr += Integer.parseInt(tokens[2]);
+                } else {
+                    // Label for instruction
+                    if (!symbolTable.containsKey(label)) {
+                        symbolTable.put(label, new Symbol(label, locCtr));
+                    }
+                    locCtr++;
+                }
+            } else {
+                locCtr++;
+            }
+        }
+
+        // Display Symbol Table
+        System.out.println("SYMBOL TABLE:");
+        System.out.println("Symbol\tAddress");
+        for (Symbol sym : symbolTable.values()) {
+            System.out.println(sym);
+        }
+    }
+
+    static boolean isInstruction(String word) {
+        String[] instructions = {"READ", "MOVER", "COMP", "BC", "STOP", "SUB"};
+        return Arrays.asList(instructions).contains(word);
+    }
+}
