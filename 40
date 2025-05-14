@@ -1,0 +1,68 @@
+Problem (40)
+nano mathfunc.l
+%{
+#include "y.tab.h"
+#include <stdlib.h>
+%}
+
+%%
+"sin"       { return SIN; }
+"cos"       { return COS; }
+"log"       { return LOG; }
+[0-9]+      { yylval.num = atoi(yytext); return NUMBER; }
+[ \t\n]+    { /* Skip whitespace */ }
+.           { return yytext[0]; }
+%%
+
+int yywrap() {
+    return 1;
+}
+
+nano mathfunc.y
+%{
+#include <stdio.h>
+#include <math.h>
+
+int yylex(void);
+int yyerror(const char *s);
+%}
+
+%union {
+    int num;
+}
+
+%token <num> NUMBER
+%token SIN COS LOG
+
+%%
+input: SIN NUMBER {
+          printf("sin(%d) = %.4f\n", $2, sin($2 * M_PI / 180)); // convert to radians
+      }
+     | COS NUMBER {
+          printf("cos(%d) = %.4f\n", $2, cos($2 * M_PI / 180));
+      }
+     | LOG NUMBER {
+          if ($2 > 0)
+              printf("log(%d) = %.4f\n", $2, log($2));
+          else
+              printf("Logarithm undefined for non-positive values.\n");
+      }
+     ;
+%%
+
+int main() {
+    printf("Enter input (e.g., sin 30): ");
+    yyparse();
+    return 0;
+}
+
+int yyerror(const char *s) {
+    printf("Error: %s\n", s);
+    return 0;
+}
+
+yacc -d mathfunc.y
+flex mathfunc.l
+gcc y.tab.c lex.yy.c -o mathfunc -lm
+./mathfunc
+
