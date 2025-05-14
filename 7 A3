@@ -1,0 +1,83 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class PoolTableGeneratorA3 {
+    public static void main(String[] args) {
+        String[] assemblyCode = {
+            "START 100",
+            "READ A",
+            "MOVER AREG, ='1'",
+            "MOVEM AREG, B",
+            "MOVER BREG, ='6'",
+            "ADD AREG, BREG",
+            "COMP AREG, A",
+            "BC GT, LAST",
+            "LTORG",
+            "NEXT SUB AREG, ='1'",
+            "MOVER CREG, B",
+            "ADD CREG, ='8'",
+            "MOVEM CREG, B",
+            "PRINT B",
+            "LAST STOP",
+            "A DS 1",
+            "B DS 1",
+            "END"
+        };
+
+        List<Integer> poolTable = new ArrayList<>();
+        int locationCounter = 100;
+        boolean inLiteralPool = false;
+
+        for (String line : assemblyCode) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+            
+            if (tokens[0].equals("START")) {
+                locationCounter = Integer.parseInt(tokens[1]);
+                continue;
+            }
+            
+            if (tokens[0].equals("LTORG")) {
+                inLiteralPool = true;
+                poolTable.add(locationCounter);
+                // Assume each literal takes 1 word
+                locationCounter += countLiteralsInPool(assemblyCode);
+                continue;
+            }
+            
+            if (!tokens[0].equals("END")) {
+                locationCounter++;
+            }
+        }
+
+        System.out.println("Pool Table:");
+        System.out.println("Pool Start Address");
+        for (Integer address : poolTable) {
+            System.out.println(address);
+        }
+    }
+
+    private static int countLiteralsInPool(String[] code) {
+        int count = 0;
+        boolean afterLTORG = false;
+        
+        for (String line : code) {
+            line = line.trim();
+            if (line.equals("LTORG")) {
+                afterLTORG = true;
+                continue;
+            }
+            
+            if (afterLTORG) {
+                if (line.startsWith("=")) {
+                    count++;
+                } else if (!line.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return count;
+    }
+}
