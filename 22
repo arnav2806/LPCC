@@ -1,0 +1,27 @@
+Problem (22)
+nano pos.l
+%{
+#include <stdio.h>
+%}
+
+%%
+"the"|"The"                         { printf("Article: %s\n", yytext); }
+"is"|"are"|"was"|"were"            { printf("Verb: %s\n", yytext); }
+"from"|"to"|"of"|"in"|"on"         { printf("Preposition: %s\n", yytext); }
+"it"|"he"|"she"|"they"|"we"|"I"|"you"|"You"  { printf("Pronoun: %s\n", yytext); }
+"how"|"How"|"fine"|"thank"|"Thank" { printf("Adjective/Verb: %s\n", yytext); }
+[.!?]                               { /* Ignore punctuation */ }
+[a-zA-Z]+                           { printf("Noun/Verb: %s\n", yytext); }
+[ \t\n]+                            { /* Ignore spaces */ }
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+flex pos.l
+gcc lex.yy.c -o pos -lfl
+./pos
+Hello! How are you?
+I’m fine, Thank You.
