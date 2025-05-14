@@ -1,0 +1,54 @@
+Problem (39)
+nano digitcheck.l
+%{
+#include "y.tab.h"
+%}
+
+%%
+[0-9]         { yylval.num = yytext[0]; return DIGIT; }
+[a-zA-Z]+     { return WORD; }
+\n            { return 0; }
+.             { return OTHER; }
+%%
+
+int yywrap() {
+    return 1;
+}
+
+nano digitcheck.y
+%{
+#include <stdio.h>
+
+int yylex(void);
+int yyerror(const char *s);
+%}
+
+%union {
+    char num;
+}
+
+%token <num> DIGIT
+%token WORD OTHER
+
+%%
+input: DIGIT    { printf("Valid Digit: %c\n", $1); }
+     | WORD     { printf("Not a digit: It's a word\n"); }
+     | OTHER    { printf("Not a digit: Invalid input\n"); }
+     ;
+%%
+
+int main() {
+    printf("Enter a single character: ");
+    yyparse();
+    return 0;
+}
+
+int yyerror(const char *s) {
+    printf("Error: %s\n", s);
+    return 0;
+}
+
+yacc -d digitcheck.y
+flex digitcheck.l
+gcc y.tab.c lex.yy.c -o digitcheck -lfl
+./digitcheck
