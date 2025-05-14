@@ -1,0 +1,83 @@
+import java.util.*;
+import java.io.*;
+
+
+
+public class AssemblerSymbolTable {
+    public static void main(String[] args) throws Exception {
+        // Sample assembly lines
+        String[] code = {
+            "START 100",
+            "READ A",
+            "READ B",
+            "LOOP MOVER AREG, A",
+            "     MOVER BREG, B",
+            "     COMP BREG, ='2'",
+            "     BC GT, LOOP",
+            "BACK SUB AREG, B",
+            "     COMP AREG, ='5'",
+            "     BC LT, BACK",
+            "     STOP",
+            "A DS 1",
+            "B DS 1",
+            "END"
+        };
+
+        Map<String, Symbol> symbolTable = new LinkedHashMap<>();
+        int locCtr = 0;
+
+        for (int i = 0; i < code.length; i++) {
+            String line = code[i].trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+
+            if (tokens[0].equals("START")) {
+                locCtr = Integer.parseInt(tokens[1]);
+                continue;
+            }
+
+            if (tokens[0].equals("END")) break;
+
+            // Check for label
+            if (!Arrays.asList("READ", "MOVER", "COMP", "BC", "STOP", "DS").contains(tokens[0])) {
+                String label = tokens[0];
+                if (!symbolTable.containsKey(label)) {
+                    symbolTable.put(label, new Symbol(label, locCtr));
+                }
+                locCtr++; // each instruction assumed 1 word
+            } else {
+                // DS declaration (last 2 lines)
+                if (tokens.length >= 3 && tokens[1].equals("DS")) {
+                    symbolTable.put(tokens[0], new Symbol(tokens[0], locCtr));
+                    int size = Integer.parseInt(tokens[2]);
+                    locCtr += size;
+                } else {
+                    locCtr++;
+                }
+            }
+        }
+
+        // Output Symbol Table
+        System.out.println("Symbol Table:");
+        System.out.println("Symbol\tAddress");
+        for (Symbol s : symbolTable.values()) {
+            System.out.println(s);
+        }
+    }
+}
+
+class Symbol {
+    String name;
+    int address;
+
+    Symbol(String name, int address) {
+        this.name = name;
+        this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return name + "\t" + address;
+    }
+}
