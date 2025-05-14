@@ -1,0 +1,78 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class MNTEntry {
+    String name;
+    int parameterCount;
+    int mdtIndex;
+
+    public MNTEntry(String name, int parameterCount, int mdtIndex) {
+        this.name = name;
+        this.parameterCount = parameterCount;
+        this.mdtIndex = mdtIndex;
+    }
+
+    @Override
+    public String toString() {
+        return name + "\t" + parameterCount + "\t" + mdtIndex;
+    }
+}
+
+public class MNTGeneratorA7 {
+    public static void main(String[] args) {
+        String[] macroCode = {
+            "LOAD F",
+            "STORE E",
+            "MACRO SRS",
+            "LOAD s",
+            "SUB t",
+            "MEND",
+            "MACRO SRS XYZ",
+            "LOAD U",
+            "STORE XYZ",
+            "MEND",
+            "MACRO ADD1 Si, Sii, Siii",
+            "LOAD Sii",
+            "ADD3 1",
+            "SRS 11",
+            "STORE Si",
+            "STORE Siii",
+            "MEND",
+            "SRS",
+            "ADD1 C1, C2, C3",
+            "END"
+        };
+
+        List<MNTEntry> mnt = new ArrayList<>();
+        int mdtIndex = 1;
+
+        for (String line : macroCode) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+            
+            if (tokens[0].equals("MACRO")) {
+                String macroName = tokens[1];
+                int paramCount = 0;
+                
+                // Count parameters
+                if (tokens.length > 2) {
+                    for (int i = 2; i < tokens.length; i++) {
+                        if (!tokens[i].isEmpty()) {
+                            paramCount++;
+                        }
+                    }
+                }
+                
+                mnt.add(new MNTEntry(macroName, paramCount, mdtIndex++));
+            }
+        }
+
+        System.out.println("Macro Name Table (MNT):");
+        System.out.println("Name\t#Params\tMDT Index");
+        for (MNTEntry entry : mnt) {
+            System.out.println(entry);
+        }
+    }
+}
