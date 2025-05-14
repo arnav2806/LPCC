@@ -1,0 +1,83 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class MDTEntry {
+    int index;
+    String definition;
+
+    public MDTEntry(int index, String definition) {
+        this.index = index;
+        this.definition = definition;
+    }
+
+    @Override
+    public String toString() {
+        return index + "\t" + definition;
+    }
+}
+
+public class MDTGeneratorB6 {
+    public static void main(String[] args) {
+        String[] macroCode = {
+            "STORE P",
+            "LOAD Q",
+            "MACRO PCG",
+            "LOAD m",
+            "ADD n",
+            "MEND",
+            "MOV S",
+            "MACRO ADDi PAR",
+            "LOAD A",
+            "STORE PAR",
+            "MEND",
+            "MACRO ADDii V1, V2, V3",
+            "STORE V2",
+            "ADDi 12",
+            "ADDi 7",
+            "LOAD V1",
+            "LOAD V3",
+            "MEND",
+            "PCG",
+            "ADDii Q1, Q2, Q3",
+            "END"
+        };
+
+        List<MDTEntry> mdt = new ArrayList<>();
+        int mdtIndex = 1;
+        boolean inMacro = false;
+        StringBuilder currentMacro = new StringBuilder();
+
+        for (String line : macroCode) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+            
+            if (tokens[0].equals("MACRO")) {
+                inMacro = true;
+                currentMacro = new StringBuilder();
+                currentMacro.append(line).append("\n");
+                continue;
+            }
+            
+            if (tokens[0].equals("MEND")) {
+                if (inMacro) {
+                    currentMacro.append(line);
+                    mdt.add(new MDTEntry(mdtIndex++, currentMacro.toString()));
+                    inMacro = false;
+                }
+                continue;
+            }
+            
+            if (inMacro) {
+                currentMacro.append(line).append("\n");
+            }
+        }
+
+        System.out.println("Macro Definition Table (MDT):");
+        System.out.println("Index\tDefinition");
+        for (MDTEntry entry : mdt) {
+            System.out.println(entry);
+        }
+    }
+}
