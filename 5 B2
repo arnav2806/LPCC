@@ -1,0 +1,79 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class Literal {
+    String value;
+    int address;
+
+    public Literal(String value, int address) {
+        this.value = value;
+        this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return value + "\t" + address;
+    }
+}
+
+public class LiteralTableGeneratorB2 {
+    public static void main(String[] args) {
+        String[] assemblyCode = {
+            "START 200",
+            "READ X",
+            "READ Y",
+            "MOVER AREG, ='5'",
+            "MOVER BREG, ='6'",
+            "ADD AREG, BREG",
+            "LOOP MOVER CREG, X",
+            "ADD CREG, ='1'",
+            "COMP CREG, Y",
+            "BC LT, LOOP",
+            "NEXT SUB AREG, ='1'",
+            "COMP AREG, Y",
+            "BC GT, NEXT",
+            "STOP",
+            "X DS 1",
+            "Y DS 1",
+            "END"
+        };
+
+        List<Literal> literalTable = new ArrayList<>();
+        int literalAddress = 300; // Starting address for literals
+
+        for (String line : assemblyCode) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+            
+            if (tokens[0].equals("START")) {
+                continue;
+            }
+            
+            // Check for literals in the line
+            for (String token : tokens) {
+                if (token.startsWith("='") && token.endsWith("'")) {
+                    boolean found = false;
+                    for (Literal lit : literalTable) {
+                        if (lit.value.equals(token)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        literalTable.add(new Literal(token, literalAddress++));
+                    }
+                }
+            }
+            
+            if (tokens[0].equals("END")) break;
+        }
+
+        System.out.println("Literal Table:");
+        System.out.println("Literal\tAddress");
+        for (Literal lit : literalTable) {
+            System.out.println(lit);
+        }
+    }
+}
