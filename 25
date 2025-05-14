@@ -1,0 +1,28 @@
+Problem (25)
+nano pos.l
+%{
+#include <stdio.h>
+%}
+
+%%
+"the"|"The"                              { printf("Article: %s\n", yytext); }
+"to"|"than"|"before"|"after"|"be"       { printf("Preposition: %s\n", yytext); }
+"itself"|"it"|"one"|"Every"             { printf("Pronoun: %s\n", yytext); }
+"intelligent"|"wiser"|"more"            { printf("Adjective: %s\n", yytext); }
+"imagines"|"comes"|"went"               { printf("Verb: %s\n", yytext); }
+"generation"                            { printf("Noun: %s\n", yytext); }
+"that"|"and"                             { printf("Conjunction: %s\n", yytext); }
+[.!?,]                                   { /* Ignore punctuation */ }
+[a-zA-Z]+                                { printf("Unknown: %s\n", yytext); }
+[ \t\n]+                                 { /* Ignore whitespace */ }
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+flex pos.l
+gcc lex.yy.c -o pos -lfl
+./pos
+Every generation imagines itself to be more intelligent than the one that went before it, and wiser than the one that comes after it.
