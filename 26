@@ -1,0 +1,27 @@
+Problem (26)
+nano pos.l
+%{
+#include <stdio.h>
+%}
+
+%%
+"have"|"divide"                          { printf("Verb: %s\n", yytext); }
+"a"|"an"|"the"                           { printf("Article: %s\n", yytext); }
+"toward"|"into"|"with"|"in"|"between"   { printf("Preposition: %s\n", yytext); }
+"Human"|"beings"|"instinct"|"thinking"|"urge"|"gap"|"groups"|"things" { printf("Noun: %s\n", yytext); }
+"strong"|"dramatic"|"binary"|"basic"|"empty"|"distinct" { printf("Adjective: %s\n", yytext); }
+"nothing"|"but"                         { printf("Qualifier: %s\n", yytext); }
+[.!?,]                                   { /* Ignore punctuation */ }
+[a-zA-Z]+                                { printf("Unknown: %s\n", yytext); }
+[ \t\n]+                                 { /* Ignore whitespace */ }
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+flex pos.l
+gcc lex.yy.c -o pos -lfl
+./pos
+Human beings have a strong dramatic instinct toward binary thinking, a basic urge to divide things into two distinct groups, with nothing but an empty gap in between.
