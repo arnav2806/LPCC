@@ -1,0 +1,25 @@
+Problem (21)
+nano pos.l
+%{
+#include <stdio.h>
+%}
+
+%%
+"the"|"The"                         { printf("Article: %s\n", yytext); }
+"is"|"are"|"was"|"were"            { printf("Verb: %s\n", yytext); }
+"from"|"to"|"of"|"in"|"on"         { printf("Preposition: %s\n", yytext); }
+"it"|"he"|"she"|"they"|"we"|"I"    { printf("Pronoun: %s\n", yytext); }
+[.!?]                               { /* Ignore punctuation */ }
+[a-zA-Z]+                           { printf("Noun/Verb: %s\n", yytext); }
+[ \t\n]+                            { /* Ignore spaces */ }
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+flex pos.l                    # Generates lex.yy.c
+gcc lex.yy.c -o pos -lfl      # Compiles the LEX output
+./pos                         # Runs the program
+Dread it. Run from it. Destiny arrives all the same.
