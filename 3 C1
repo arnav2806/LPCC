@@ -1,0 +1,68 @@
+import java.util.HashMap;
+import java.util.Map;
+
+public class SymbolTableGeneratorC1 {
+    public static void main(String[] args) {
+        String[] assemblyCode = {
+            "START 180",
+            "READ M",
+            "READ N",
+            "LOOP MOVER AREG, M",
+            "MOVER BREG, N",
+            "COMP BREG, ='200'",
+            "BC GT, LOOP",
+            "BACK SUB AREG, M",
+            "COMP AREG, ='500'",
+            "BC LT, BACK",
+            "STOP",
+            "M DS 1",
+            "N DS 1",
+            "END"
+        };
+
+        Map<String, Integer> symbolTable = new HashMap<>();
+        int locationCounter = 180;
+
+        for (String line : assemblyCode) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            String[] tokens = line.split("\\s+");
+            
+            if (!isInstruction(tokens[0]) && !tokens[0].equals("START") && 
+                !tokens[0].equals("END") && !tokens[0].equals("DS")) {
+                symbolTable.put(tokens[0], locationCounter);
+            }
+            
+            if (tokens[0].equals("START")) {
+                locationCounter = Integer.parseInt(tokens[1]);
+                continue;
+            }
+            
+            if (tokens.length > 1 && tokens[1].equals("DS")) {
+                locationCounter += Integer.parseInt(tokens[2]);
+                continue;
+            }
+            
+            if (!tokens[0].equals("END")) {
+                locationCounter++;
+            }
+        }
+
+        System.out.println("Symbol Table:");
+        System.out.println("Symbol\tAddress");
+        for (Map.Entry<String, Integer> entry : symbolTable.entrySet()) {
+            System.out.println(entry.getKey() + "\t" + entry.getValue());
+        }
+    }
+
+    private static boolean isInstruction(String token) {
+        String[] instructions = {"READ", "MOVER", "COMP", "BC", "SUB", "STOP", "DS"};
+        for (String inst : instructions) {
+            if (token.equals(inst)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
